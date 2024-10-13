@@ -1,55 +1,43 @@
-import streamlit as st
-import pandas as pd
-import seaborn as sns
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
-# Load the dataset (replace this path with the actual dataset path)
-# Assuming the file is uploaded or you are reading it locally
-data = pd.read_csv('Imports_Exports_Dataset.csv')
+# Creating a sample dataset for demonstration
+data = {
+    'Category': ['A', 'B', 'C', 'D', 'E'],
+    'Values': [23, 45, 56, 78, 89]
+}
 
-# Display the title and dataset
-st.title("Trade Data Visualization Dashboard")
-st.write("This dashboard provides visualizations for Exports, Imports, and Trade Balance by Country.")
+df = pd.DataFrame(data)
 
-# Display the dataset
-st.subheader("Dataset")
-st.write(data)
+# Set up the figure to plot all charts in one shot
+fig, axs = plt.subplots(1, 3, figsize=(18, 6))
 
-# Set up the figure for enhanced visualizations
-st.subheader("Visualizations")
+# -------------------- Bar Chart --------------------
+axs[0].bar(df['Category'], df['Values'], color='skyblue', edgecolor='black', linewidth=1.2)
+axs[0].set_title('Bar Chart of Categories', fontsize=16)
+axs[0].set_xlabel('Category', fontsize=12)
+axs[0].set_ylabel('Values', fontsize=12)
+axs[0].tick_params(axis='x', labelsize=12)
+axs[0].tick_params(axis='y', labelsize=12)
 
-# Create a 2x2 grid for displaying charts
-fig, axs = plt.subplots(2, 2, figsize=(15, 10))
+# Add values on top of each bar
+for i, value in enumerate(df['Values']):
+    axs[0].text(i, value + 2, str(value), ha='center', fontsize=12, color='black')
 
-# -------------------- Bar Chart for Exports --------------------
-sns.barplot(x='Country', y='Exports', data=data, palette='Blues_d', ax=axs[0, 0])
-axs[0, 0].set_title('Country-wise Exports', fontsize=14)
-axs[0, 0].set_xlabel('Country', fontsize=10)
-axs[0, 0].set_ylabel('Exports (in billion $)', fontsize=10)
-axs[0, 0].tick_params(axis='x', rotation=45)
+# -------------------- Histogram --------------------
+axs[1].hist(df['Values'], bins=5, color='lightgreen', edgecolor='black')
+axs[1].set_title('Histogram of Values', fontsize=16)
+axs[1].set_xlabel('Values', fontsize=12)
+axs[1].set_ylabel('Frequency', fontsize=12)
+axs[1].tick_params(axis='x', labelsize=12)
+axs[1].tick_params(axis='y', labelsize=12)
 
-# -------------------- Bar Chart for Imports --------------------
-sns.barplot(x='Country', y='Imports', data=data, palette='Greens_d', ax=axs[0, 1])
-axs[0, 1].set_title('Country-wise Imports', fontsize=14)
-axs[0, 1].set_xlabel('Country', fontsize=10)
-axs[0, 1].set_ylabel('Imports (in billion $)', fontsize=10)
-axs[0, 1].tick_params(axis='x', rotation=45)
+# -------------------- Pie Chart --------------------
+colors = ['gold', 'lightblue', 'lightcoral', 'lightgreen', 'violet']
+axs[2].pie(df['Values'], labels=df['Category'], autopct='%1.1f%%', startangle=90, colors=colors, wedgeprops={'edgecolor': 'black', 'linewidth': 1.2})
+axs[2].set_title('Pie Chart of Categories', fontsize=16)
 
-# -------------------- Pie Chart for Trade Balance --------------------
-colors = sns.color_palette('pastel')
-axs[1, 0].pie(data['Trade_Balance'], labels=data['Country'], autopct='%1.1f%%', startangle=90, colors=colors)
-axs[1, 0].set_title('Trade Balance Distribution by Country', fontsize=14)
-
-# -------------------- Scatter Plot for Exports vs Imports --------------------
-axs[1, 1].scatter(data['Exports'], data['Imports'], color='purple', s=100)
-for i, txt in enumerate(data['Country']):
-    axs[1, 1].annotate(txt, (data['Exports'][i], data['Imports'][i]), fontsize=10, ha='right')
-axs[1, 1].set_title('Scatter Plot of Exports vs Imports', fontsize=14)
-axs[1, 1].set_xlabel('Exports (in billion $)', fontsize=10)
-axs[1, 1].set_ylabel('Imports (in billion $)', fontsize=10)
-
-# Adjust layout for better spacing
+# Adjust layout for clarity
 plt.tight_layout()
-
-# Show the visualizations in Streamlit
-st.pyplot(fig)
+plt.show()
