@@ -36,7 +36,7 @@ panel_data = pd.DataFrame({
 st.set_page_config(layout="wide")
 
 # Dashboard title
-st.title("Colorful Interactive Data Visualization Dashboard")
+st.title("Data Visualization Dashboard")
 
 # Layout for Cross-sectional Data visualizations
 st.subheader("Cross-sectional Data")
