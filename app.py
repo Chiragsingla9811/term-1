@@ -1,66 +1,55 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import plotly.express as px
+import seaborn as sns
+import matplotlib.pyplot as plt
 
-# Sample dataset for demonstration (replace this with your actual data)
-data = {
-    'Category': ['A', 'B', 'C', 'D', 'E'],
-    'Values': [23, 45, 56, 78, 89]
-}
-df = pd.DataFrame(data)
+# Load the dataset (replace this path with the actual dataset path)
+# Assuming the file is uploaded or you are reading it locally
+data = pd.read_csv('Imports_Exports_Dataset.csv')
 
-# Sample time-series data
-time_series_data = pd.DataFrame({
-    'Date': pd.date_range(start='2021-01-01', periods=100, freq='D'),
-    'Values': np.random.randn(100).cumsum()
-})
+# Display the title and dataset
+st.title("Trade Data Visualization Dashboard")
+st.write("This dashboard provides visualizations for Exports, Imports, and Trade Balance by Country.")
 
-# Panel-like data
-panel_data = pd.DataFrame({
-    'Entity': ['A'] * 10 + ['B'] * 10,
-    'Time': pd.date_range(start='2021-01-01', periods=10, freq='M').tolist() * 2,
-    'Values': np.random.rand(20) * 100
-})
+# Display the dataset
+st.subheader("Dataset")
+st.write(data)
 
-# Streamlit Dashboard
-st.title("Interactive Data Visualization Dashboard")
+# Set up the figure for enhanced visualizations
+st.subheader("Visualizations")
 
-# Display all charts together for categorical data
-st.header("Categorical Data Visualizations")
+# Create a 2x2 grid for displaying charts
+fig, axs = plt.subplots(2, 2, figsize=(15, 10))
 
-# Bar chart
-st.subheader("Bar Chart")
-bar_chart = px.bar(df, x='Category', y='Values', title="Bar Chart")
-st.plotly_chart(bar_chart)
+# -------------------- Bar Chart for Exports --------------------
+sns.barplot(x='Country', y='Exports', data=data, palette='Blues_d', ax=axs[0, 0])
+axs[0, 0].set_title('Country-wise Exports', fontsize=14)
+axs[0, 0].set_xlabel('Country', fontsize=10)
+axs[0, 0].set_ylabel('Exports (in billion $)', fontsize=10)
+axs[0, 0].tick_params(axis='x', rotation=45)
 
-# Pie chart
-st.subheader("Pie Chart")
-pie_chart = px.pie(df, values='Values', names='Category', title="Pie Chart")
-st.plotly_chart(pie_chart)
+# -------------------- Bar Chart for Imports --------------------
+sns.barplot(x='Country', y='Imports', data=data, palette='Greens_d', ax=axs[0, 1])
+axs[0, 1].set_title('Country-wise Imports', fontsize=14)
+axs[0, 1].set_xlabel('Country', fontsize=10)
+axs[0, 1].set_ylabel('Imports (in billion $)', fontsize=10)
+axs[0, 1].tick_params(axis='x', rotation=45)
 
-# Display all charts together for time-series data
-st.header("Time-series Data Visualizations")
+# -------------------- Pie Chart for Trade Balance --------------------
+colors = sns.color_palette('pastel')
+axs[1, 0].pie(data['Trade_Balance'], labels=data['Country'], autopct='%1.1f%%', startangle=90, colors=colors)
+axs[1, 0].set_title('Trade Balance Distribution by Country', fontsize=14)
 
-# Line chart
-st.subheader("Line Chart")
-line_chart = px.line(time_series_data, x='Date', y='Values', title="Time-series Line Chart")
-st.plotly_chart(line_chart)
+# -------------------- Scatter Plot for Exports vs Imports --------------------
+axs[1, 1].scatter(data['Exports'], data['Imports'], color='purple', s=100)
+for i, txt in enumerate(data['Country']):
+    axs[1, 1].annotate(txt, (data['Exports'][i], data['Imports'][i]), fontsize=10, ha='right')
+axs[1, 1].set_title('Scatter Plot of Exports vs Imports', fontsize=14)
+axs[1, 1].set_xlabel('Exports (in billion $)', fontsize=10)
+axs[1, 1].set_ylabel('Imports (in billion $)', fontsize=10)
 
-# Histogram for time-series values
-st.subheader("Histogram")
-hist_chart = px.histogram(time_series_data, x='Values', nbins=20, title="Time-series Histogram")
-st.plotly_chart(hist_chart)
+# Adjust layout for better spacing
+plt.tight_layout()
 
-# Panel data visualizations
-st.header("Panel Data Visualizations")
-
-# Line chart by entity
-st.subheader("Line Chart by Entity")
-panel_line_chart = px.line(panel_data, x='Time', y='Values', color='Entity', title="Panel Data Line Chart")
-st.plotly_chart(panel_line_chart)
-
-# Scatter plot by entity
-st.subheader("Scatter Plot by Entity")
-panel_scatter_chart = px.scatter(panel_data, x='Time', y='Values', color='Entity', title="Panel Data Scatter Plot")
-st.plotly_chart(panel_scatter_chart)
+# Show the visualizations in Streamlit
+st.pyplot(fig)
