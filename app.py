@@ -2,7 +2,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import statsmodels.api as sm
+import plotly.express as px
+import plotly.graph_objects as go
 
 # -------------------- Data Creation (Cross-sectional, Time-series, Panel Data) --------------------
 
@@ -30,78 +31,66 @@ panel_data = pd.DataFrame({
     'Y': np.random.rand(10) * 30
 })
 
-# -------------------- Streamlit App --------------------
+# -------------------- Streamlit Dashboard --------------------
 
-# Title
-st.title("Data Visualization App")
+# Dashboard title
+st.title("Interactive Data Visualization Dashboard")
 
 # Sidebar for Data Selection
-st.sidebar.title("Select Data Type")
-data_type = st.sidebar.selectbox("Choose the type of data to visualize", 
-                                 ["Cross-sectional", "Time-series", "Panel"])
+st.sidebar.title("Options")
+data_type = st.sidebar.selectbox("Select Dataset", ["Cross-sectional", "Time-series", "Panel Data"])
 
-# Show the selected data
+# Chart type selection
+chart_type = st.sidebar.selectbox("Select Chart Type", ["Line Chart", "Scatter Plot", "Bar Chart"])
+
+# Filter options for panel data
+if data_type == "Panel Data":
+    entities = st.sidebar.multiselect("Select Entities", options=panel_data['Entity'].unique(), default=panel_data['Entity'].unique())
+
+# Cross-sectional Data Visualization
 if data_type == "Cross-sectional":
     st.subheader("Cross-sectional Data")
-    st.dataframe(cross_sectional_data)
+    st.write(cross_sectional_data)
 
-    # Scatter plot for cross-sectional data
-    st.subheader("Scatter Plot of Cross-sectional Data")
-    fig, ax = plt.subplots()
-    ax.scatter(cross_sectional_data['X'], cross_sectional_data['Y'])
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    st.pyplot(fig)
+    # Plot based on selected chart type
+    if chart_type == "Scatter Plot":
+        fig = px.scatter(cross_sectional_data, x='X', y='Y', text='Entity', title="Scatter Plot of Cross-sectional Data")
+    elif chart_type == "Bar Chart":
+        fig = px.bar(cross_sectional_data, x='Entity', y='Y', title="Bar Chart of Cross-sectional Data")
+    elif chart_type == "Line Chart":
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=cross_sectional_data['X'], y=cross_sectional_data['Y'], mode='lines+markers'))
+        fig.update_layout(title="Line Chart of Cross-sectional Data")
 
+    st.plotly_chart(fig)
+
+# Time-series Data Visualization
 elif data_type == "Time-series":
     st.subheader("Time-series Data")
-    st.dataframe(time_series_data)
+    st.write(time_series_data)
 
-    # Line plot for time-series data
-    st.subheader("Line Plot of Time-series Data")
-    fig, ax = plt.subplots()
-    ax.plot(time_series_data['Time'], time_series_data['Y'])
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Y')
-    st.pyplot(fig)
+    # Plot based on selected chart type
+    if chart_type == "Line Chart":
+        fig = px.line(time_series_data, x='Time', y='Y', title="Line Chart of Time-series Data")
+    elif chart_type == "Scatter Plot":
+        fig = px.scatter(time_series_data, x='Time', y='Y', title="Scatter Plot of Time-series Data")
+    elif chart_type == "Bar Chart":
+        fig = px.bar(time_series_data, x='Time', y='Y', title="Bar Chart of Time-series Data")
 
-elif data_type == "Panel":
+    st.plotly_chart(fig)
+
+# Panel Data Visualization
+elif data_type == "Panel Data":
     st.subheader("Panel Data")
-    st.dataframe(panel_data)
+    filtered_panel_data = panel_data[panel_data['Entity'].isin(entities)]
+    st.write(filtered_panel_data)
 
-    # Line plot for panel data
-    st.subheader("Line Plot of Panel Data (Entity-wise)")
-    fig, ax = plt.subplots()
-    for entity in panel_data['Entity'].unique():
-        entity_data = panel_data[panel_data['Entity'] == entity]
-        ax.plot(entity_data['Time'], entity_data['Y'], label=f'Entity {entity}')
-    ax.set_xlabel('Time')
-    ax.set_ylabel('Y')
-    ax.legend()
-    st.pyplot(fig)
+    # Plot based on selected chart type
+    if chart_type == "Line Chart":
+        fig = px.line(filtered_panel_data, x='Time', y='Y', color='Entity', title="Line Chart of Panel Data")
+    elif chart_type == "Scatter Plot":
+        fig = px.scatter(filtered_panel_data, x='Time', y='Y', color='Entity', title="Scatter Plot of Panel Data")
+    elif chart_type == "Bar Chart":
+        fig = px.bar(filtered_panel_data, x='Time', y='Y', color='Entity', barmode='group', title="Bar Chart of Panel Data")
 
-# -------------------- Linear Regression Function --------------------
-def linear_regression(X, Y):
-    X = sm.add_constant(X)  # Add constant term for intercept
-    model = sm.OLS(Y, X).fit()
-    return model
-
-# Regression Analysis
-st.sidebar.subheader("Regression Analysis")
-if st.sidebar.button("Perform Regression on Cross-sectional Data"):
-    X = cross_sectional_data[['X']]
-    Y = cross_sectional_data['Y']
-    model = linear_regression(X, Y)
-    
-    st.subheader("Regression Results for Cross-sectional Data")
-    st.text(model.summary())
-    
-    # Regression plot
-    st.subheader("Regression Line Plot")
-    fig, ax = plt.subplots()
-    ax.scatter(cross_sectional_data['X'], cross_sectional_data['Y'], label='Data')
-    ax.plot(cross_sectional_data['X'], model.predict(sm.add_constant(X)), color='red', label='Regression Line')
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.legend()
-    st.pyplot(fig)
+    st.plotly_chart(fig)
