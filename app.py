@@ -1,149 +1,107 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": 10,
-   "id": "1d0481a2-cb50-4c27-a961-d74258dd9e36",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "import streamlit as st\n",
-    "import pandas as pd\n",
-    "import numpy as np\n",
-    "import matplotlib.pyplot as plt\n",
-    "import statsmodels.api as sm\n",
-    "\n",
-    "# -------------------- Data Creation (Cross-sectional, Time-series, Panel Data) --------------------\n",
-    "\n",
-    "np.random.seed(0)\n",
-    "\n",
-    "# 1. Cross-sectional data (multiple entities at one time point)\n",
-    "cross_sectional_data = pd.DataFrame({\n",
-    "    'Entity': ['A', 'B', 'C', 'D', 'E'],\n",
-    "    'X': np.random.rand(5),\n",
-    "    'Y': np.random.rand(5) * 10\n",
-    "})\n",
-    "\n",
-    "# 2. Time-series data (single entity tracked over time)\n",
-    "time_series_data = pd.DataFrame({\n",
-    "    'Time': pd.date_range(start='2020-01-01', periods=10, freq='ME'),\n",
-    "    'X': np.random.rand(10),\n",
-    "    'Y': np.random.rand(10) * 20\n",
-    "})\n",
-    "\n",
-    "# 3. Panel data (multiple entities tracked over time)\n",
-    "panel_data = pd.DataFrame({\n",
-    "    'Entity': ['A'] * 5 + ['B'] * 5,\n",
-    "    'Time': list(pd.date_range(start='2020-01-01', periods=5, freq='ME')) * 2,\n",
-    "    'X': np.random.rand(10),\n",
-    "    'Y': np.random.rand(10) * 30\n",
-    "})\n",
-    "\n",
-    "# -------------------- Streamlit App --------------------\n",
-    "\n",
-    "# Title\n",
-    "st.title(\"Data Visualization App\")\n",
-    "\n",
-    "# Sidebar for Data Selection\n",
-    "st.sidebar.title(\"Select Data Type\")\n",
-    "data_type = st.sidebar.selectbox(\"Choose the type of data to visualize\", \n",
-    "                                 [\"Cross-sectional\", \"Time-series\", \"Panel\"])\n",
-    "\n",
-    "# Show the selected data\n",
-    "if data_type == \"Cross-sectional\":\n",
-    "    st.subheader(\"Cross-sectional Data\")\n",
-    "    st.dataframe(cross_sectional_data)\n",
-    "\n",
-    "    # Scatter plot for cross-sectional data\n",
-    "    st.subheader(\"Scatter Plot of Cross-sectional Data\")\n",
-    "    fig, ax = plt.subplots()\n",
-    "    ax.scatter(cross_sectional_data['X'], cross_sectional_data['Y'])\n",
-    "    ax.set_xlabel('X')\n",
-    "    ax.set_ylabel('Y')\n",
-    "    st.pyplot(fig)\n",
-    "\n",
-    "elif data_type == \"Time-series\":\n",
-    "    st.subheader(\"Time-series Data\")\n",
-    "    st.dataframe(time_series_data)\n",
-    "\n",
-    "    # Line plot for time-series data\n",
-    "    st.subheader(\"Line Plot of Time-series Data\")\n",
-    "    fig, ax = plt.subplots()\n",
-    "    ax.plot(time_series_data['Time'], time_series_data['Y'])\n",
-    "    ax.set_xlabel('Time')\n",
-    "    ax.set_ylabel('Y')\n",
-    "    st.pyplot(fig)\n",
-    "\n",
-    "elif data_type == \"Panel\":\n",
-    "    st.subheader(\"Panel Data\")\n",
-    "    st.dataframe(panel_data)\n",
-    "\n",
-    "    # Line plot for panel data\n",
-    "    st.subheader(\"Line Plot of Panel Data (Entity-wise)\")\n",
-    "    fig, ax = plt.subplots()\n",
-    "    for entity in panel_data['Entity'].unique():\n",
-    "        entity_data = panel_data[panel_data['Entity'] == entity]\n",
-    "        ax.plot(entity_data['Time'], entity_data['Y'], label=f'Entity {entity}')\n",
-    "    ax.set_xlabel('Time')\n",
-    "    ax.set_ylabel('Y')\n",
-    "    ax.legend()\n",
-    "    st.pyplot(fig)\n",
-    "\n",
-    "# -------------------- Linear Regression Function --------------------\n",
-    "def linear_regression(X, Y):\n",
-    "    X = sm.add_constant(X)  # Add constant term for intercept\n",
-    "    model = sm.OLS(Y, X).fit()\n",
-    "    return model\n",
-    "\n",
-    "# Regression Analysis\n",
-    "st.sidebar.subheader(\"Regression Analysis\")\n",
-    "if st.sidebar.button(\"Perform Regression on Cross-sectional Data\"):\n",
-    "    X = cross_sectional_data[['X']]\n",
-    "    Y = cross_sectional_data['Y']\n",
-    "    model = linear_regression(X, Y)\n",
-    "    \n",
-    "    st.subheader(\"Regression Results for Cross-sectional Data\")\n",
-    "    st.text(model.summary())\n",
-    "    \n",
-    "    # Regression plot\n",
-    "    st.subheader(\"Regression Line Plot\")\n",
-    "    fig, ax = plt.subplots()\n",
-    "    ax.scatter(cross_sectional_data['X'], cross_sectional_data['Y'], label='Data')\n",
-    "    ax.plot(cross_sectional_data['X'], model.predict(sm.add_constant(X)), color='red', label='Regression Line')\n",
-    "    ax.set_xlabel('X')\n",
-    "    ax.set_ylabel('Y')\n",
-    "    ax.legend()\n",
-    "    st.pyplot(fig)"
-   ]
-  },
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "df35fed2-30e6-4bb3-853f-7b8c6c1970b4",
-   "metadata": {},
-   "outputs": [],
-   "source": []
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3 (ipykernel)",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.12.4"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import statsmodels.api as sm
+
+# -------------------- Data Creation (Cross-sectional, Time-series, Panel Data) --------------------
+
+np.random.seed(0)
+
+# 1. Cross-sectional data (multiple entities at one time point)
+cross_sectional_data = pd.DataFrame({
+    'Entity': ['A', 'B', 'C', 'D', 'E'],
+    'X': np.random.rand(5),
+    'Y': np.random.rand(5) * 10
+})
+
+# 2. Time-series data (single entity tracked over time)
+time_series_data = pd.DataFrame({
+    'Time': pd.date_range(start='2020-01-01', periods=10, freq='ME'),
+    'X': np.random.rand(10),
+    'Y': np.random.rand(10) * 20
+})
+
+# 3. Panel data (multiple entities tracked over time)
+panel_data = pd.DataFrame({
+    'Entity': ['A'] * 5 + ['B'] * 5,
+    'Time': list(pd.date_range(start='2020-01-01', periods=5, freq='ME')) * 2,
+    'X': np.random.rand(10),
+    'Y': np.random.rand(10) * 30
+})
+
+# -------------------- Streamlit App --------------------
+
+# Title
+st.title("Data Visualization App")
+
+# Sidebar for Data Selection
+st.sidebar.title("Select Data Type")
+data_type = st.sidebar.selectbox("Choose the type of data to visualize", 
+                                 ["Cross-sectional", "Time-series", "Panel"])
+
+# Show the selected data
+if data_type == "Cross-sectional":
+    st.subheader("Cross-sectional Data")
+    st.dataframe(cross_sectional_data)
+
+    # Scatter plot for cross-sectional data
+    st.subheader("Scatter Plot of Cross-sectional Data")
+    fig, ax = plt.subplots()
+    ax.scatter(cross_sectional_data['X'], cross_sectional_data['Y'])
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    st.pyplot(fig)
+
+elif data_type == "Time-series":
+    st.subheader("Time-series Data")
+    st.dataframe(time_series_data)
+
+    # Line plot for time-series data
+    st.subheader("Line Plot of Time-series Data")
+    fig, ax = plt.subplots()
+    ax.plot(time_series_data['Time'], time_series_data['Y'])
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Y')
+    st.pyplot(fig)
+
+elif data_type == "Panel":
+    st.subheader("Panel Data")
+    st.dataframe(panel_data)
+
+    # Line plot for panel data
+    st.subheader("Line Plot of Panel Data (Entity-wise)")
+    fig, ax = plt.subplots()
+    for entity in panel_data['Entity'].unique():
+        entity_data = panel_data[panel_data['Entity'] == entity]
+        ax.plot(entity_data['Time'], entity_data['Y'], label=f'Entity {entity}')
+    ax.set_xlabel('Time')
+    ax.set_ylabel('Y')
+    ax.legend()
+    st.pyplot(fig)
+
+# -------------------- Linear Regression Function --------------------
+def linear_regression(X, Y):
+    X = sm.add_constant(X)  # Add constant term for intercept
+    model = sm.OLS(Y, X).fit()
+    return model
+
+# Regression Analysis
+st.sidebar.subheader("Regression Analysis")
+if st.sidebar.button("Perform Regression on Cross-sectional Data"):
+    X = cross_sectional_data[['X']]
+    Y = cross_sectional_data['Y']
+    model = linear_regression(X, Y)
+    
+    st.subheader("Regression Results for Cross-sectional Data")
+    st.text(model.summary())
+    
+    # Regression plot
+    st.subheader("Regression Line Plot")
+    fig, ax = plt.subplots()
+    ax.scatter(cross_sectional_data['X'], cross_sectional_data['Y'], label='Data')
+    ax.plot(cross_sectional_data['X'], model.predict(sm.add_constant(X)), color='red', label='Regression Line')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.legend()
+    st.pyplot(fig)
