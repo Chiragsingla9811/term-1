@@ -5,3 +5,5 @@ numpy
 statsmodels
 scipy
 streamlit
+plotly
+matplotlib
