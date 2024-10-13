@@ -32,64 +32,70 @@ panel_data = pd.DataFrame({
 
 # -------------------- Streamlit Dashboard --------------------
 
+# Set the page layout to wide for better visualization
+st.set_page_config(layout="wide")
+
 # Dashboard title
 st.title("Interactive Data Visualization Dashboard")
 
-# Displaying all charts together for Cross-sectional Data
-st.header("Cross-sectional Data")
-st.write(cross_sectional_data)
+# Layout for Cross-sectional Data visualizations
+st.subheader("Cross-sectional Data")
+
+col1, col2, col3 = st.columns(3)
 
 # Scatter Plot for Cross-sectional Data
-st.subheader("Scatter Plot")
-fig_scatter = px.scatter(cross_sectional_data, x='X', y='Y', text='Entity', title="Cross-sectional Data: Scatter Plot")
-st.plotly_chart(fig_scatter)
+with col1:
+    fig_scatter = px.scatter(cross_sectional_data, x='X', y='Y', text='Entity', title="Scatter Plot (Cross-sectional)")
+    st.plotly_chart(fig_scatter)
 
 # Bar Chart for Cross-sectional Data
-st.subheader("Bar Chart")
-fig_bar = px.bar(cross_sectional_data, x='Entity', y='Y', title="Cross-sectional Data: Bar Chart")
-st.plotly_chart(fig_bar)
+with col2:
+    fig_bar = px.bar(cross_sectional_data, x='Entity', y='Y', title="Bar Chart (Cross-sectional)")
+    st.plotly_chart(fig_bar)
 
 # Line Chart for Cross-sectional Data
-st.subheader("Line Chart")
-fig_line = go.Figure()
-fig_line.add_trace(go.Scatter(x=cross_sectional_data['X'], y=cross_sectional_data['Y'], mode='lines+markers'))
-fig_line.update_layout(title="Cross-sectional Data: Line Chart")
-st.plotly_chart(fig_line)
+with col3:
+    fig_line = go.Figure()
+    fig_line.add_trace(go.Scatter(x=cross_sectional_data['X'], y=cross_sectional_data['Y'], mode='lines+markers'))
+    fig_line.update_layout(title="Line Chart (Cross-sectional)")
+    st.plotly_chart(fig_line)
 
-# Displaying all charts together for Time-series Data
-st.header("Time-series Data")
-st.write(time_series_data)
+# Layout for Time-series Data visualizations
+st.subheader("Time-series Data")
+
+col4, col5, col6 = st.columns(3)
 
 # Line Chart for Time-series Data
-st.subheader("Line Chart")
-fig_ts_line = px.line(time_series_data, x='Time', y='Y', title="Time-series Data: Line Chart")
-st.plotly_chart(fig_ts_line)
+with col4:
+    fig_ts_line = px.line(time_series_data, x='Time', y='Y', title="Line Chart (Time-series)")
+    st.plotly_chart(fig_ts_line)
 
 # Scatter Plot for Time-series Data
-st.subheader("Scatter Plot")
-fig_ts_scatter = px.scatter(time_series_data, x='Time', y='Y', title="Time-series Data: Scatter Plot")
-st.plotly_chart(fig_ts_scatter)
+with col5:
+    fig_ts_scatter = px.scatter(time_series_data, x='Time', y='Y', title="Scatter Plot (Time-series)")
+    st.plotly_chart(fig_ts_scatter)
 
 # Bar Chart for Time-series Data
-st.subheader("Bar Chart")
-fig_ts_bar = px.bar(time_series_data, x='Time', y='Y', title="Time-series Data: Bar Chart")
-st.plotly_chart(fig_ts_bar)
+with col6:
+    fig_ts_bar = px.bar(time_series_data, x='Time', y='Y', title="Bar Chart (Time-series)")
+    st.plotly_chart(fig_ts_bar)
 
-# Displaying all charts together for Panel Data
-st.header("Panel Data")
-st.write(panel_data)
+# Layout for Panel Data visualizations
+st.subheader("Panel Data")
+
+col7, col8, col9 = st.columns(3)
 
 # Line Chart for Panel Data
-st.subheader("Line Chart (Entity-wise)")
-fig_panel_line = px.line(panel_data, x='Time', y='Y', color='Entity', title="Panel Data: Line Chart")
-st.plotly_chart(fig_panel_line)
+with col7:
+    fig_panel_line = px.line(panel_data, x='Time', y='Y', color='Entity', title="Line Chart (Panel Data)")
+    st.plotly_chart(fig_panel_line)
 
 # Scatter Plot for Panel Data
-st.subheader("Scatter Plot (Entity-wise)")
-fig_panel_scatter = px.scatter(panel_data, x='Time', y='Y', color='Entity', title="Panel Data: Scatter Plot")
-st.plotly_chart(fig_panel_scatter)
+with col8:
+    fig_panel_scatter = px.scatter(panel_data, x='Time', y='Y', color='Entity', title="Scatter Plot (Panel Data)")
+    st.plotly_chart(fig_panel_scatter)
 
 # Bar Chart for Panel Data
-st.subheader("Bar Chart (Entity-wise)")
-fig_panel_bar = px.bar(panel_data, x='Time', y='Y', color='Entity', barmode='group', title="Panel Data: Bar Chart")
-st.plotly_chart(fig_panel_bar)
+with col9:
+    fig_panel_bar = px.bar(panel_data, x='Time', y='Y', color='Entity', barmode='group', title="Bar Chart (Panel Data)")
+    st.plotly_chart(fig_panel_bar)
